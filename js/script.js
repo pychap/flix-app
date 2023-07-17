@@ -38,17 +38,21 @@ async function displayMovieDetails() {
   const movieId = window.location.search.split("=")[1];
   const movie = await fetchAPIData(`movie/${movieId}`);
 
+  // Overlay for bkg image
+  displayBackgroundImage("movie", movie.backdrop_path);
+
   const div = document.createElement("div");
   div.innerHTML = `
   <div class="details-top">
     <div>
-    ${movie.poster_path
-      ? `<img
+    ${
+      movie.poster_path
+        ? `<img
         src="https://image.tmdb.org/t/p/w500${movie.poster_path}"
         class="card-img-top"
         alt="${movie.title}"
       />`
-      : `<img
+        : `<img
           src="images/no-image.jpg"
           class="card-img-top"
           alt="${movie.title}"
@@ -65,27 +69,40 @@ async function displayMovieDetails() {
       <p>${movie.overview}</p>
       <h5>Genres</h5>
       <ul class="list-group">
-        ${movie.genres.map((genre) => {
-          return `
+        ${movie.genres
+          .map((genre) => {
+            return `
           <li>${genre.name}</li>
-          `}).join('')}
+          `;
+          })
+          .join("")}
       </ul>
-      <a href="${movie.homepage}" target="_blank" class="btn">Visit Movie Homepage</a>
+      <a href="${
+        movie.homepage
+      }" target="_blank" class="btn">Visit Movie Homepage</a>
     </div>
   </div>
   <div class="details-bottom">
     <h2>Movie Info</h2>
     <ul>
-      <li><span class="text-secondary">Budget:</span> $${addCommasToNumber(movie.budget)}</li>
-      <li><span class="text-secondary">Revenue:</span> $${addCommasToNumber(movie.revenue)}</li>
-      <li><span class="text-secondary">Runtime:</span> ${movie.runtime} minutes</li>
+      <li><span class="text-secondary">Budget:</span> $${addCommasToNumber(
+        movie.budget
+      )}</li>
+      <li><span class="text-secondary">Revenue:</span> $${addCommasToNumber(
+        movie.revenue
+      )}</li>
+      <li><span class="text-secondary">Runtime:</span> ${
+        movie.runtime
+      } minutes</li>
       <li><span class="text-secondary">Status:</span> ${movie.status}</li>
     </ul>
     <h4>Production Companies</h4>
     <div class="list-group">
-      ${movie.production_companies.map((company) => {
-        return `<span>${company.name}</span>`
-      }).join(', ')}
+      ${movie.production_companies
+        .map((company) => {
+          return `<span style="display: block;">${company.name}</span>`;
+        })
+        .join("")}
     </div>
   </div>
   `;
@@ -141,6 +158,28 @@ async function fetchAPIData(endpoint) {
   return data;
 }
 
+function displayBackgroundImage(type, backgroundPath) {
+  const overlayDiv = document.createElement("div");
+  // Add properties
+  overlayDiv.style.backgroundImage = `url(https://image.tmdb.org/t/p/original/${backgroundPath})`;
+  overlayDiv.style.backgroundSize = "cover";
+  overlayDiv.style.backgroundPosition = "center";
+  overlayDiv.style.backgroundRepeat = "no-repeat";
+  overlayDiv.style.height = "100vh";
+  overlayDiv.style.width = "100vw";
+  overlayDiv.style.position = "absolute";
+  overlayDiv.style.top = "0";
+  overlayDiv.style.left = "0";
+  overlayDiv.style.zIndex = "-1";
+  overlayDiv.style.opacity = "0.25";
+
+  if(type === 'movie') {
+    document.querySelector("#movie-details").appendChild(overlayDiv);
+  } else {
+    document.querySelector("#show-details").appendChild(overlayDiv);
+  }
+}
+
 function showSpinner() {
   document.querySelector(".spinner").classList.add("show");
 }
@@ -159,7 +198,7 @@ function highlightActiveLink() {
 }
 
 function addCommasToNumber(num) {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 // init app
